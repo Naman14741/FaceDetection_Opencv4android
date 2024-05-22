@@ -1,11 +1,17 @@
 package app.cameraapp;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -44,8 +50,10 @@ import org.opencv.dnn.Net;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.FaceDetectorYN;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +65,7 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "FaceDetection";
     ImageButton capture, toggleFlash, switchCamera;
+    private ImageCapture imageCapture;
     private PreviewView previewView;
     private ImageView overlayImageView;
     private FaceDetectorYN faceDetector;
@@ -108,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
         requestPermissions();
 
-        // capture.setOnClickListener(v -> captureImage());
+        capture.setOnClickListener(v -> captureImage());
         switchCamera.setOnClickListener(v -> switchCamera());
         toggleFlash.setOnClickListener(v -> toggleFlash());
     }
@@ -124,11 +133,12 @@ public class MainActivity extends AppCompatActivity {
         // Storage permissions based on Android version
         StorageAccess storageAccess = getStorageAccess(this);
         if (storageAccess == StorageAccess.DENIED) {
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
-                permissionsToRequest.add(Manifest.permission.READ_EXTERNAL_STORAGE);
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                permissionsToRequest.add(Manifest.permission.READ_MEDIA_IMAGES);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 permissionsToRequest.add(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED);
+            } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU) {
+                permissionsToRequest.add(Manifest.permission.READ_MEDIA_IMAGES);
+            } else {
+                permissionsToRequest.add(Manifest.permission.READ_EXTERNAL_STORAGE);
             }
         }
 
@@ -189,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
                         .requireLensFacing(lensFacing)
                         .build();
 
-                ImageCapture imageCapture = new ImageCapture.Builder().build();
+                imageCapture = new ImageCapture.Builder().build();
 
                 // Camera resolution
                 ResolutionSelector resolutionSelector = new ResolutionSelector.Builder()
@@ -214,7 +224,64 @@ public class MainActivity extends AppCompatActivity {
         }, ContextCompat.getMainExecutor(this));
     }
 
-    // public void captureImage() {}
+    public void captureImage() {
+        if (camera != null) {
+            // Create a bitmap of the PreviewView
+            Bitmap previewBitmap = previewView.getBitmap();
+            if (previewBitmap != null) {
+                // Create a bitmap of the overlay ImageView
+                Bitmap overlayBitmap = ((BitmapDrawable) overlayImageView.getDrawable()).getBitmap();
+
+                // Combine the two bitmaps
+                Bitmap combinedBitmap = combineBitmaps(previewBitmap, overlayBitmap);
+
+                // Convert the combined bitmap to a byte array
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                combinedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
+
+                // Create ContentValues for the new image
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, "Image_" + System.currentTimeMillis());
+                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+
+                // Get the content URI for the new image
+                Uri imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+
+                if (imageUri == null) {
+                    Log.e(TAG, "Photo capture failed: imageUri is null");
+                    return;
+                }
+                // Write the byte array to the content URI
+                try {
+                    OutputStream os = getContentResolver().openOutputStream(imageUri);
+                    if (os == null) {
+                        Log.e(TAG, "Photo capture failed: OutputStream is null");
+                        return;
+                    }
+                    os.write(byteArray);
+                    os.close();
+                    // Display a success message
+                    String msg = "Photo capture succeeded: " + imageUri;
+                    Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, msg);
+                } catch (IOException e) {
+                    Log.e(TAG, "Photo capture failed: ", e);
+                }
+            }
+            else {
+                Log.e(TAG, "Preview bitmap is null");
+            }
+        }
+    }
+
+    private Bitmap combineBitmaps(Bitmap background, Bitmap overlay) {
+        Bitmap combinedBitmap = Bitmap.createBitmap(background.getWidth(), background.getHeight(), background.getConfig());
+        Canvas canvas = new Canvas(combinedBitmap);
+        canvas.drawBitmap(background, new Matrix(), null);
+        canvas.drawBitmap(overlay, new Matrix(), null);
+        return combinedBitmap;
+    }
 
     public void switchCamera() {
         lensFacing = (lensFacing == CameraSelector.LENS_FACING_BACK) ?
@@ -242,15 +309,15 @@ public class MainActivity extends AppCompatActivity {
         int uSize = uBuffer.remaining();
         int vSize = vBuffer.remaining();
 
-        byte[] nv21 = new byte[ySize + uSize + vSize];
+        byte[] i420 = new byte[ySize + uSize + vSize];
 
         // U and V are swapped
-        yBuffer.get(nv21, 0, ySize);
-        vBuffer.get(nv21, ySize, vSize);
-        uBuffer.get(nv21, ySize + vSize, uSize);
+        yBuffer.get(i420, 0, ySize);
+        vBuffer.get(i420, ySize, vSize);
+        uBuffer.get(i420, ySize + vSize, uSize);
 
         Mat yuvMat = new Mat(image.getHeight() + image.getHeight() / 2, image.getWidth(), CvType.CV_8UC1);
-        yuvMat.put(0, 0, nv21);
+        yuvMat.put(0, 0, i420);
 
         Mat rgbMat = new Mat();
         Imgproc.cvtColor(yuvMat, rgbMat, Imgproc.COLOR_YUV2RGB_I420);
