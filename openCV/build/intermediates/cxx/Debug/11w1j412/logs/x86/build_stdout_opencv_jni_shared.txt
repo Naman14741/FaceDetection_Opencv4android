@@ -1,0 +1,2 @@
+ninja: Entering directory `C:\Users\NAM\FaceDetection_Opencv4android\openCV\.cxx\Debug\11w1j412\x86'
+ninja: no work to do.
