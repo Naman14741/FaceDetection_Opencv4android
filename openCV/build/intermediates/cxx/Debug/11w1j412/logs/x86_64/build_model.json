@@ -144,7 +144,7 @@
         "rootBuildGradleFolder": "E:\\Study\\Code\\Java\\FaceDetection_Opencv4android",
         "sdkFolder": "C:\\Users\\Owner\\AppData\\Local\\Android\\Sdk",
         "isBuildOnlyTargetAbiEnabled": true,
-        "ideBuildTargetAbi": "x86_64,arm64-v8a",
+        "ideBuildTargetAbi": "x86_64",
         "isCmakeBuildCohabitationEnabled": false,
         "isPrefabEnabled": false
       },
