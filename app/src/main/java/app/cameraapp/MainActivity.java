@@ -286,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
     private Runnable visualize(Mat overlay, Mat faces) {
         int thickness = 1;
         float[] faceData = new float[faces.cols() * faces.channels()];
-
+    
         for (int i = 0; i < faces.rows(); i++) {
             faces.get(i, 0, faceData);
             Imgproc.rectangle(overlay, new Rect(Math.round(faceData[0]), Math.round(faceData[1]),
