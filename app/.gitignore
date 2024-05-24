@@ -1,1 +1,12 @@
-/build
+# Bỏ qua các tệp dự án IntelliJ IDEA
+.idea/
+
+# Bỏ qua các tệp cụ thể
+.idea/deploymentTargetSelector.xml
+.idea/other.xml
+
+# Các tệp bỏ qua thông thường khác
+node_modules/
+dist/
+*.log
+

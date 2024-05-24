@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "app.cameraapp-mergeDebugResources-35:/values-ldltr-v21/values-ldltr-v21.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\NAM\\.gradle\\caches\\transforms-4\\e8b2ea087f7dd5263324392b3c19e8c5\\transformed\\appcompat-1.6.1\\res\\values-ldltr-v21\\values-ldltr-v21.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "112",
+                        "endOffsets": "163"
+                    }
+                }
+            ]
+        }
+    ]
+}
