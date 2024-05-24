@@ -65,7 +65,6 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "FaceDetection";
     ImageButton capture, toggleFlash, switchCamera;
-
     private PreviewView previewView;
     private ImageView overlayImageView;
     private FaceDetectorYN faceDetector;
