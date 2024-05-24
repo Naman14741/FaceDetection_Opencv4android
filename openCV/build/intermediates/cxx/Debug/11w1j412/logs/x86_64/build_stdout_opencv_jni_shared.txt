@@ -1,2 +1,0 @@
-ninja: Entering directory `E:\Study\Code\Java\FaceDetection_Opencv4android\openCV\.cxx\Debug\11w1j412\x86_64'
-ninja: no work to do.

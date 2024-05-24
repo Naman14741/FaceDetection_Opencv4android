@@ -213,7 +213,10 @@ public class MainActivity extends AppCompatActivity {
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build();
 
-                imageAnalysis.setAnalyzer(backgroundExecutor, this::processImage);
+                imageAnalysis.setAnalyzer(backgroundExecutor, imageProxy -> {
+                    processImage(imageProxy);
+                    imageProxy.close();
+                });
 
                 cameraProvider.unbindAll();
 
@@ -415,7 +418,6 @@ public class MainActivity extends AppCompatActivity {
         mat.release();
         faces.release();
         overlay.release();
-        imageProxy.close();
     }
 
     // Draw bounding boxes on the transparent overlay
