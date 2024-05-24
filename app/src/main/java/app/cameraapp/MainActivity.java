@@ -175,7 +175,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -230,14 +229,16 @@ public class MainActivity extends AppCompatActivity {
         if (camera != null) {
             // Create a bitmap of the PreviewView
             Bitmap previewBitmap = previewView.getBitmap();
-            // create a bitmap
-            Bitmap combinedBitmap;
             if (previewBitmap != null) {
+                Bitmap combinedBitmap;
+
                 if (overlayImageView.getDrawable() != null) {
                     Bitmap overlayBitmap = ((BitmapDrawable) overlayImageView.getDrawable()).getBitmap();
-                    combinedBitmap = combineBitmaps(previewBitmap, overlayBitmap);
+                    Bitmap croppedOverlayBitmap = getCenterCroppedBitmap(overlayBitmap, previewBitmap.getWidth(), previewBitmap.getHeight());
+                    combinedBitmap = combineBitmaps(previewBitmap, croppedOverlayBitmap);
+                } else {
+                    combinedBitmap = previewBitmap;
                 }
-                else combinedBitmap = previewBitmap;
 
                 // Convert the combined bitmap to a byte array
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -257,14 +258,12 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 // Write the byte array to the content URI
-                try {
-                    OutputStream os = getContentResolver().openOutputStream(imageUri);
+                try (OutputStream os = getContentResolver().openOutputStream(imageUri)) {
                     if (os == null) {
                         Log.e(TAG, "Photo capture failed: OutputStream is null");
                         return;
                     }
                     os.write(byteArray);
-                    os.close();
                     // Display a success message
                     String msg = "Photo capture succeeded!";
                     Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
@@ -272,11 +271,44 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e(TAG, "Photo capture failed: ", e);
                 }
-            }
-            else {
+            } else {
                 Log.e(TAG, "Preview bitmap is null");
             }
         }
+    }
+
+    private Bitmap getCenterCroppedBitmap(Bitmap srcBitmap, int targetWidth, int targetHeight) {
+        // Calculate source rectangle
+        int srcWidth = srcBitmap.getWidth();
+        int srcHeight = srcBitmap.getHeight();
+        float srcAspectRatio = (float) srcWidth / srcHeight;
+        float targetAspectRatio = (float) targetWidth / targetHeight;
+
+        int cropWidth, cropHeight;
+        int cropX, cropY;
+
+        if (srcAspectRatio > targetAspectRatio) {
+            cropHeight = srcHeight;
+            cropWidth = (int) (cropHeight * targetAspectRatio);
+            cropX = (srcWidth - cropWidth) / 2;
+            cropY = 0;
+        } else {
+            cropWidth = srcWidth;
+            cropHeight = (int) (cropWidth / targetAspectRatio);
+            cropX = 0;
+            cropY = (srcHeight - cropHeight) / 2;
+        }
+
+        // Create a cropped bitmap
+        Bitmap croppedBitmap = Bitmap.createBitmap(srcBitmap, cropX, cropY, cropWidth, cropHeight);
+
+        // Scale the cropped bitmap to the target size
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(croppedBitmap, targetWidth, targetHeight, true);
+
+        // Recycle the cropped bitmap to save memory
+        croppedBitmap.recycle();
+
+        return scaledBitmap;
     }
 
     private Bitmap combineBitmaps(Bitmap background, Bitmap overlay) {
@@ -286,6 +318,7 @@ public class MainActivity extends AppCompatActivity {
         canvas.drawBitmap(overlay, new Matrix(), null);
         return combinedBitmap;
     }
+
 
     public void switchCamera() {
         lensFacing = (lensFacing == CameraSelector.LENS_FACING_BACK) ?
@@ -419,7 +452,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Draw bounding boxes on the transparent overlay
     private Runnable visualize(Mat overlay, Mat faces) {
-        int thickness = 1;
+        int thickness = 2;
         float[] faceData = new float[faces.cols() * faces.channels()];
 
         for (int i = 0; i < faces.rows(); i++) {
