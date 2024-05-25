@@ -50,6 +50,9 @@ import org.opencv.dnn.Net;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.FaceDetectorYN;
 
+import static org.opencv.imgproc.Imgproc.FONT_HERSHEY_SIMPLEX;
+
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,7 +71,8 @@ public class MainActivity extends AppCompatActivity {
     private PreviewView previewView;
     private ImageView overlayImageView;
     private FaceDetectorYN faceDetector;
-    Net faceRecognizer;
+    private Net faceRecognizer;
+    private Database db;
     int lensFacing = CameraSelector.LENS_FACING_BACK;
     Camera camera;
     private Size mInputSize = null;
@@ -96,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        db = new Database(this);
         previewView = findViewById(R.id.previewView);
         capture = findViewById(R.id.captureButton);
         toggleFlash = findViewById(R.id.flashButton);
@@ -416,6 +421,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public enum ProcessMode {
+        NORMAL,
+        FACE_DETECTION,
+        FACE_RECOGNITION,
+        FACE_INSERTION
+    }
+
+    public ProcessMode processMode = ProcessMode.NORMAL;
     private void processImage(ImageProxy imageProxy) {
         Mat mat = yuvToRgb(imageProxy);
 
@@ -429,36 +442,79 @@ public class MainActivity extends AppCompatActivity {
 
         // Convert color to BGR
         Imgproc.cvtColor(mat, mat, Imgproc.COLOR_RGB2BGR);
-
-        Mat faces = new Mat();
-        faceDetector.setScoreThreshold(0.8f);
-        faceDetector.detect(mat, faces);
-
         // Create a transparent overlay
         Mat overlay = Mat.zeros(mat.size(), CvType.CV_8UC4);
 
-        // Draw bounding boxes on the transparent overlay
-        runOnUiThread(visualize(overlay, faces));
+        if (processMode != ProcessMode.NORMAL) {
+            Mat faces = new Mat();
+            faceDetector.setScoreThreshold(0.8f);
+            // Detect faces and store the bounding boxes in the faces Mat
+            faceDetector.detect(mat, faces);
+
+            // Draw bounding boxes on the transparent overlay
+            runOnUiThread(visualize(overlay, faces, mat, processMode));
+            faces.release();
+        }
 
         // Update the overlay ImageView with the processed overlay
         updateOverlay(overlay);
 
         mat.release();
-        faces.release();
         overlay.release();
         imageProxy.close();
     }
 
+    private float[] extractFaceEmbedding(Mat face) {
+        Mat blob = Dnn.blobFromImage(face, 1.0, new Size(112, 112), new Scalar(127.5, 127.5, 127.5), true, false);
+        faceRecognizer.setInput(blob);
+        Mat embedding = faceRecognizer.forward();
+        float[] embeddingData = new float[(int) embedding.total()];
+        embedding.get(0, 0, embeddingData);
+
+        // Release the resources
+        blob.release();
+        embedding.release();
+        return embeddingData;
+    }
+
     // Draw bounding boxes on the transparent overlay
-    private Runnable visualize(Mat overlay, Mat faces) {
+    private Runnable visualize(Mat overlay, Mat faces, Mat mat, ProcessMode processMode) {
         int thickness = 2;
         float[] faceData = new float[faces.cols() * faces.channels()];
 
         for (int i = 0; i < faces.rows(); i++) {
             faces.get(i, 0, faceData);
-            Imgproc.rectangle(overlay, new Rect(Math.round(faceData[0]), Math.round(faceData[1]),
-                            Math.round(faceData[2]), Math.round(faceData[3])),
-                    new Scalar(0, 255, 0, 255), thickness); // Using RGBA for transparency
+            Rect faceRect = new Rect(Math.round(faceData[0]), Math.round(faceData[1]),
+                    Math.round(faceData[2] - faceData[0]), Math.round(faceData[3] - faceData[1]));
+            Imgproc.rectangle(overlay, faceRect, new Scalar(0, 255, 0, 255), thickness); // Using RGBA for transparency
+            if (processMode == ProcessMode.FACE_RECOGNITION) {
+                // Extract face embedding
+                Mat face = new Mat(mat, faceRect);
+                float[] embedding = extractFaceEmbedding(face);
+                float[] dbEmbedding = db.getFaceEmbedding();
+                if (dbEmbedding == null) {
+                    // Save the face embedding to the database
+                    db.saveFaceEmbedding(embedding);
+                    Log.i(TAG, "Face embedding saved to database");
+                }
+                else {
+                    // Calculate cosine similarity
+                    float similarity = db.cosineSimilarity(embedding, dbEmbedding);
+                    Log.i(TAG, "Cosine similarity: " + similarity);
+                    String text;
+                    if (similarity > 0.8) {
+                        Log.i(TAG, "Face recognized!");
+                        text = "Matched!";
+                    }
+                    else {
+                        Log.i(TAG, "Face not recognized!");
+                        text = "Unmatched!";
+                    }
+                    Imgproc.putText(overlay, text, new org.opencv.core.Point(faceRect.x, faceRect.y - 10),
+                            FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0, 255), 2);
+                }
+                face.release();
+            }
         }
         return null;
     }
