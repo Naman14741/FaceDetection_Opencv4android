@@ -1,0 +1,226 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="app.cameraapp"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+9        android:targetSdkVersion="34" />
+10
+11    <uses-permission android:name="android.permission.CAMERA" />
+11-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:5:5-64
+11-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:5:22-62
+12
+13    <uses-feature
+13-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:6:9-88
+14        android:name="android.hardware.camera"
+14-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:6:23-61
+15        android:required="false" />
+15-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:6:62-86
+16    <uses-feature
+16-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:7:9-98
+17        android:name="android.hardware.camera.autofocus"
+17-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:7:23-71
+18        android:required="false" />
+18-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:7:72-96
+19    <uses-feature
+19-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:8:9-94
+20        android:name="android.hardware.camera.front"
+20-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:8:23-67
+21        android:required="false" />
+21-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:8:68-92
+22    <uses-feature
+22-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:9:9-104
+23        android:name="android.hardware.camera.front.autofocus"
+23-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:9:23-77
+24        android:required="false" />
+24-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:9:78-102
+25
+26    <!-- Devices running Android 12L (API level 32) or lower -->
+27    <uses-permission
+27-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:12:5-107
+28        android:name="android.permission.READ_EXTERNAL_STORAGE"
+28-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:12:22-77
+29        android:maxSdkVersion="32" />
+29-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:12:78-104
+30
+31    <!-- Devices running Android 13 (API level 33) or higher -->
+32    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+32-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:15:5-76
+32-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:15:22-73
+33
+34    <!--
+35         Handle the reselection within the app on devices running Android 14
+36         or higher if your app targets Android 14 (API level 34) or higher.
+37    -->
+38    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+38-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:19:5-90
+38-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:19:22-87
+39
+40    <supports-screens
+40-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:21:5-25:37
+41        android:anyDensity="true"
+41-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:25:9-34
+42        android:largeScreens="true"
+42-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:24:9-36
+43        android:normalScreens="true"
+43-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:23:9-37
+44        android:resizeable="true"
+44-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:21:23-48
+45        android:smallScreens="true" />
+45-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:22:9-36
+46
+47    <queries>
+47-->[androidx.camera:camera-extensions:1.3.3] C:\Users\NAM\.gradle\caches\transforms-4\eedc681cf2762cb18a8e68b64c23f945\transformed\camera-extensions-1.3.3\AndroidManifest.xml:22:5-26:15
+48        <intent>
+48-->[androidx.camera:camera-extensions:1.3.3] C:\Users\NAM\.gradle\caches\transforms-4\eedc681cf2762cb18a8e68b64c23f945\transformed\camera-extensions-1.3.3\AndroidManifest.xml:23:9-25:18
+49            <action android:name="androidx.camera.extensions.action.VENDOR_ACTION" />
+49-->[androidx.camera:camera-extensions:1.3.3] C:\Users\NAM\.gradle\caches\transforms-4\eedc681cf2762cb18a8e68b64c23f945\transformed\camera-extensions-1.3.3\AndroidManifest.xml:24:13-86
+49-->[androidx.camera:camera-extensions:1.3.3] C:\Users\NAM\.gradle\caches\transforms-4\eedc681cf2762cb18a8e68b64c23f945\transformed\camera-extensions-1.3.3\AndroidManifest.xml:24:21-83
+50        </intent>
+51    </queries>
+52
+53    <permission
+53-->[androidx.core:core:1.13.0] C:\Users\NAM\.gradle\caches\transforms-4\488efda6cc34a69449a5af7001796616\transformed\core-1.13.0\AndroidManifest.xml:22:5-24:47
+54        android:name="app.cameraapp.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+54-->[androidx.core:core:1.13.0] C:\Users\NAM\.gradle\caches\transforms-4\488efda6cc34a69449a5af7001796616\transformed\core-1.13.0\AndroidManifest.xml:23:9-81
+55        android:protectionLevel="signature" />
+55-->[androidx.core:core:1.13.0] C:\Users\NAM\.gradle\caches\transforms-4\488efda6cc34a69449a5af7001796616\transformed\core-1.13.0\AndroidManifest.xml:24:9-44
+56
+57    <uses-permission android:name="app.cameraapp.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+57-->[androidx.core:core:1.13.0] C:\Users\NAM\.gradle\caches\transforms-4\488efda6cc34a69449a5af7001796616\transformed\core-1.13.0\AndroidManifest.xml:26:5-97
+57-->[androidx.core:core:1.13.0] C:\Users\NAM\.gradle\caches\transforms-4\488efda6cc34a69449a5af7001796616\transformed\core-1.13.0\AndroidManifest.xml:26:22-94
+58
+59    <application
+59-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:27:5-46:19
+60        android:allowBackup="true"
+60-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:28:9-35
+61        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+61-->[androidx.core:core:1.13.0] C:\Users\NAM\.gradle\caches\transforms-4\488efda6cc34a69449a5af7001796616\transformed\core-1.13.0\AndroidManifest.xml:28:18-86
+62        android:dataExtractionRules="@xml/data_extraction_rules"
+62-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:29:9-65
+63        android:debuggable="true"
+64        android:extractNativeLibs="false"
+65        android:fullBackupContent="@xml/backup_rules"
+65-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:30:9-54
+66        android:icon="@mipmap/ic_launcher"
+66-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:31:9-43
+67        android:label="@string/app_name"
+67-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:32:9-41
+68        android:roundIcon="@mipmap/ic_launcher_round"
+68-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:33:9-54
+69        android:supportsRtl="true"
+69-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:34:9-35
+70        android:testOnly="true"
+71        android:theme="@style/Theme.CameraApp" >
+71-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:35:9-47
+72        <activity
+72-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:37:9-45:20
+73            android:name="app.cameraapp.MainActivity"
+73-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:38:13-41
+74            android:exported="true" >
+74-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:39:13-36
+75            <intent-filter>
+75-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:40:13-44:29
+76                <action android:name="android.intent.action.MAIN" />
+76-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:41:17-69
+76-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:41:25-66
+77
+78                <category android:name="android.intent.category.LAUNCHER" />
+78-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:43:17-77
+78-->C:\Users\NAM\FaceDetection_Opencv4android\app\src\main\AndroidManifest.xml:43:27-74
+79            </intent-filter>
+80        </activity>
+81
+82        <uses-library
+82-->[androidx.camera:camera-extensions:1.3.3] C:\Users\NAM\.gradle\caches\transforms-4\eedc681cf2762cb18a8e68b64c23f945\transformed\camera-extensions-1.3.3\AndroidManifest.xml:29:9-31:40
+83            android:name="androidx.camera.extensions.impl"
+83-->[androidx.camera:camera-extensions:1.3.3] C:\Users\NAM\.gradle\caches\transforms-4\eedc681cf2762cb18a8e68b64c23f945\transformed\camera-extensions-1.3.3\AndroidManifest.xml:30:13-59
+84            android:required="false" />
+84-->[androidx.camera:camera-extensions:1.3.3] C:\Users\NAM\.gradle\caches\transforms-4\eedc681cf2762cb18a8e68b64c23f945\transformed\camera-extensions-1.3.3\AndroidManifest.xml:31:13-37
+85
+86        <service
+86-->[androidx.camera:camera-camera2:1.3.3] C:\Users\NAM\.gradle\caches\transforms-4\5bd19305f22db5ac5b23c25c80d1a428\transformed\camera-camera2-1.3.3\AndroidManifest.xml:24:9-33:19
+87            android:name="androidx.camera.core.impl.MetadataHolderService"
+87-->[androidx.camera:camera-camera2:1.3.3] C:\Users\NAM\.gradle\caches\transforms-4\5bd19305f22db5ac5b23c25c80d1a428\transformed\camera-camera2-1.3.3\AndroidManifest.xml:25:13-75
+88            android:enabled="false"
+88-->[androidx.camera:camera-camera2:1.3.3] C:\Users\NAM\.gradle\caches\transforms-4\5bd19305f22db5ac5b23c25c80d1a428\transformed\camera-camera2-1.3.3\AndroidManifest.xml:26:13-36
+89            android:exported="false" >
+89-->[androidx.camera:camera-camera2:1.3.3] C:\Users\NAM\.gradle\caches\transforms-4\5bd19305f22db5ac5b23c25c80d1a428\transformed\camera-camera2-1.3.3\AndroidManifest.xml:27:13-37
+90            <meta-data
+90-->[androidx.camera:camera-camera2:1.3.3] C:\Users\NAM\.gradle\caches\transforms-4\5bd19305f22db5ac5b23c25c80d1a428\transformed\camera-camera2-1.3.3\AndroidManifest.xml:30:13-32:89
+91                android:name="androidx.camera.core.impl.MetadataHolderService.DEFAULT_CONFIG_PROVIDER"
+91-->[androidx.camera:camera-camera2:1.3.3] C:\Users\NAM\.gradle\caches\transforms-4\5bd19305f22db5ac5b23c25c80d1a428\transformed\camera-camera2-1.3.3\AndroidManifest.xml:31:17-103
+92                android:value="androidx.camera.camera2.Camera2Config$DefaultProvider" />
+92-->[androidx.camera:camera-camera2:1.3.3] C:\Users\NAM\.gradle\caches\transforms-4\5bd19305f22db5ac5b23c25c80d1a428\transformed\camera-camera2-1.3.3\AndroidManifest.xml:32:17-86
+93        </service>
+94
+95        <provider
+95-->[androidx.emoji2:emoji2:1.2.0] C:\Users\NAM\.gradle\caches\transforms-4\ab99953eccf8beff4a5c739296c0cce0\transformed\emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+96            android:name="androidx.startup.InitializationProvider"
+96-->[androidx.emoji2:emoji2:1.2.0] C:\Users\NAM\.gradle\caches\transforms-4\ab99953eccf8beff4a5c739296c0cce0\transformed\emoji2-1.2.0\AndroidManifest.xml:25:13-67
+97            android:authorities="app.cameraapp.androidx-startup"
+97-->[androidx.emoji2:emoji2:1.2.0] C:\Users\NAM\.gradle\caches\transforms-4\ab99953eccf8beff4a5c739296c0cce0\transformed\emoji2-1.2.0\AndroidManifest.xml:26:13-68
+98            android:exported="false" >
+98-->[androidx.emoji2:emoji2:1.2.0] C:\Users\NAM\.gradle\caches\transforms-4\ab99953eccf8beff4a5c739296c0cce0\transformed\emoji2-1.2.0\AndroidManifest.xml:27:13-37
+99            <meta-data
+99-->[androidx.emoji2:emoji2:1.2.0] C:\Users\NAM\.gradle\caches\transforms-4\ab99953eccf8beff4a5c739296c0cce0\transformed\emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+100                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+100-->[androidx.emoji2:emoji2:1.2.0] C:\Users\NAM\.gradle\caches\transforms-4\ab99953eccf8beff4a5c739296c0cce0\transformed\emoji2-1.2.0\AndroidManifest.xml:30:17-75
+101                android:value="androidx.startup" />
+101-->[androidx.emoji2:emoji2:1.2.0] C:\Users\NAM\.gradle\caches\transforms-4\ab99953eccf8beff4a5c739296c0cce0\transformed\emoji2-1.2.0\AndroidManifest.xml:31:17-49
+102            <meta-data
+102-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\NAM\.gradle\caches\transforms-4\c3ed106cf5f949dc1461a18d9eaef978\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:29:13-31:52
+103                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+103-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\NAM\.gradle\caches\transforms-4\c3ed106cf5f949dc1461a18d9eaef978\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:30:17-78
+104                android:value="androidx.startup" />
+104-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\NAM\.gradle\caches\transforms-4\c3ed106cf5f949dc1461a18d9eaef978\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:31:17-49
+105            <meta-data
+105-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+106                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+106-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+107                android:value="androidx.startup" />
+107-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+108        </provider>
+109
+110        <receiver
+110-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+111            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+111-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+112            android:directBootAware="false"
+112-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+113            android:enabled="true"
+113-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+114            android:exported="true"
+114-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+115            android:permission="android.permission.DUMP" >
+115-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+116            <intent-filter>
+116-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+117                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+117-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+117-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+118            </intent-filter>
+119            <intent-filter>
+119-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+120                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+120-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+120-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+121            </intent-filter>
+122            <intent-filter>
+122-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+123                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+123-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+123-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+124            </intent-filter>
+125            <intent-filter>
+125-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+126                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+126-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+126-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\NAM\.gradle\caches\transforms-4\a38f59fe1ae542894774ccd82fdd196a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
+127            </intent-filter>
+128        </receiver>
+129    </application>
+130
+131</manifest>

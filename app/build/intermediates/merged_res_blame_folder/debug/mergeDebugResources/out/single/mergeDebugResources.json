@@ -1,0 +1,126 @@
+[
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\raw_face_detection_yunet_2023mar.onnx.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\raw\\face_detection_yunet_2023mar.onnx"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\drawable_baseline_person_add_alt_24.xml.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\drawable\\baseline_person_add_alt_24.xml"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\mipmap-xhdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\mipmap-xhdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\mipmap-xxxhdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\mipmap-xxxhdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\mipmap-xxhdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\mipmap-xxhdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\mipmap-xhdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\mipmap-xhdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\drawable_ic_launcher_foreground.xml.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\drawable\\ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\drawable_switch_camera_android_24.xml.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\drawable\\switch_camera_android_24.xml"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\layout_activity_main.xml.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\layout\\activity_main.xml"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\drawable_baseline_person_search_24.xml.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\drawable\\baseline_person_search_24.xml"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\drawable_ic_launcher_background.xml.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\drawable\\ic_launcher_background.xml"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\mipmap-xxhdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\mipmap-xxhdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\drawable_flash_off_24.xml.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\drawable\\flash_off_24.xml"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\mipmap-anydpi-v26\\ic_launcher_round.xml"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\drawable_manual_record_24.xml.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\drawable\\manual_record_24.xml"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\mipmap-mdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\mipmap-mdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\xml_data_extraction_rules.xml.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\xml\\data_extraction_rules.xml"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\mipmap-mdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\mipmap-mdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\xml_backup_rules.xml.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\xml\\backup_rules.xml"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\drawable_baseline_person_off_24.xml.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\drawable\\baseline_person_off_24.xml"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\mipmap-xxxhdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\mipmap-xxxhdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\mipmap-anydpi-v26\\ic_launcher.xml"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\mipmap-hdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\mipmap-hdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\drawable_flash_on_24.xml.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\drawable\\flash_on_24.xml"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\raw_mobilefacenet.prototxt.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\raw\\mobilefacenet.prototxt"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\drawable_baseline_person_add_24.xml.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\drawable\\baseline_person_add_24.xml"
+    },
+    {
+        "merged": "app.cameraapp-debug-37:/layout_activity_main.xml.flat",
+        "source": "app.cameraapp-main-39:/layout/activity_main.xml"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\raw_mobilefacenet_caffemodel.caffemodel.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\raw\\mobilefacenet_caffemodel.caffemodel"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\drawable_baseline_flash_auto_24.xml.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\drawable\\baseline_flash_auto_24.xml"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\mipmap-hdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\mipmap-hdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-debug-37:\\drawable_capture_button.xml.flat",
+        "source": "C:\\Users\\NAM\\.gradle\\daemon\\8.6\\app.cameraapp-main-39:\\drawable\\capture_button.xml"
+    }
+]

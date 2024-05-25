@@ -1,0 +1,34 @@
+R_DEF: Internal format may change without notice
+local
+color black
+color white
+drawable baseline_person_add_24
+drawable baseline_person_off_24
+drawable baseline_person_search_24
+drawable capture_button
+drawable flash_off_24
+drawable flash_on_24
+drawable ic_launcher_background
+drawable ic_launcher_foreground
+drawable manual_record_24
+drawable switch_camera_android_24
+id baselineperson
+id baselinepersonadd
+id captureButton
+id flashButton
+id main
+id overlayImageView
+id previewView
+id roundpersonoff
+id switchCameraButton
+layout activity_main
+mipmap ic_launcher
+mipmap ic_launcher_round
+raw face_detection_yunet_2023mar
+raw mobilefacenet
+raw mobilefacenet_caffemodel
+string app_name
+style Base.Theme.CameraApp
+style Theme.CameraApp
+xml backup_rules
+xml data_extraction_rules
