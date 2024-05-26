@@ -42,6 +42,7 @@ import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -56,6 +57,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -63,12 +65,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
+    public ProcessMode processMode = ProcessMode.FACE_RECOGNITION;
     private static final String TAG = "FaceDetection";
     ImageButton capture, toggleFlash, switchCamera;
     private PreviewView previewView;
     private ImageView overlayImageView;
     private FaceDetectorYN faceDetector;
-    Net faceRecognizer;
+    private Net faceRecognizer;
+    private Database db;
     int lensFacing = CameraSelector.LENS_FACING_BACK;
     Camera camera;
     private Size mInputSize = null;
@@ -96,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        db = new Database(this);
         previewView = findViewById(R.id.previewView);
         capture = findViewById(R.id.captureButton);
         toggleFlash = findViewById(R.id.flashButton);
@@ -177,6 +182,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        // For debugging purposes
         backgroundExecutor.shutdown();
     }
 
@@ -416,13 +423,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public enum ProcessMode {
+        NORMAL,
+        FACE_DETECTION,
+        FACE_RECOGNITION,
+        FACE_INSERTION
+    }
+
     private void processImage(ImageProxy imageProxy) {
+        if (processMode == ProcessMode.NORMAL) {
+            imageProxy.close();
+            return;
+        }
+
+        // Convert ImageProxy to Mat
         Mat mat = yuvToRgb(imageProxy);
 
         if (mInputSize == null) {
-            mInputSize = new Size(mat.cols(),mat.rows());
+            mInputSize = new Size(mat.cols(), mat.rows());
             faceDetector.setInputSize(mInputSize);
         }
+
+        // Create a transparent overlay
+        Mat overlay = Mat.zeros(mat.size(), CvType.CV_8UC4);
 
         // Resize mat to the input size of the model
         Imgproc.resize(mat, mat, mInputSize);
@@ -434,23 +457,41 @@ public class MainActivity extends AppCompatActivity {
         faceDetector.setScoreThreshold(0.8f);
         faceDetector.detect(mat, faces);
 
-        // Create a transparent overlay
-        Mat overlay = Mat.zeros(mat.size(), CvType.CV_8UC4);
-
-        // Draw bounding boxes on the transparent overlay
-        runOnUiThread(visualize(overlay, faces));
+        if (processMode == ProcessMode.FACE_DETECTION) {
+            runOnUiThread(visualizeFaceDetect(overlay, faces));
+        }
+        else if (processMode == ProcessMode.FACE_RECOGNITION) {
+            runOnUiThread(visualizeFaceRecognition(overlay, faces, mat));
+        }
 
         // Update the overlay ImageView with the processed overlay
         updateOverlay(overlay);
 
+        // Release resources
         mat.release();
         faces.release();
         overlay.release();
         imageProxy.close();
     }
 
+    private float[] extractFaceEmbedding(Mat face) {
+        Mat blob = Dnn.blobFromImage(face, 1.0 / 128.0, new Size(112, 112), new Scalar(127.5, 127.5, 127.5), true, false);
+        faceRecognizer.setInput(blob);
+        Mat embedding = faceRecognizer.forward();
+
+        float[] embeddingData = new float[(int) embedding.total()];
+        embedding.get(0, 0, embeddingData);
+        Log.i(TAG, "Face embedding: " + Arrays.toString(embeddingData));
+
+        // Release resources
+        blob.release();
+        embedding.release();
+
+        return embeddingData;
+    }
+
     // Draw bounding boxes on the transparent overlay
-    private Runnable visualize(Mat overlay, Mat faces) {
+    private Runnable visualizeFaceDetect(Mat overlay, Mat faces) {
         int thickness = 2;
         float[] faceData = new float[faces.cols() * faces.channels()];
 
@@ -459,6 +500,45 @@ public class MainActivity extends AppCompatActivity {
             Imgproc.rectangle(overlay, new Rect(Math.round(faceData[0]), Math.round(faceData[1]),
                             Math.round(faceData[2]), Math.round(faceData[3])),
                     new Scalar(0, 255, 0, 255), thickness); // Using RGBA for transparency
+        }
+        return null;
+    }
+
+    private Runnable visualizeFaceRecognition(Mat overlay, Mat faces, Mat mat) {
+        int numFaces = faces.rows();
+        if (numFaces != 0) {
+            int thickness = 2;
+            float[] faceData = new float[faces.cols() * faces.channels()];
+
+            for (int i = 0; i < numFaces; i++) {
+                faces.get(i, 0, faceData);
+                Rect faceRect = new Rect(Math.round(faceData[0]), Math.round(faceData[1]),
+                        Math.round(faceData[2]), Math.round(faceData[3]));
+                Imgproc.rectangle(overlay, faceRect, new Scalar(0, 255, 0, 255), thickness); // Using RGBA for transparency
+
+                // Check if the face rectangle is within the image boundaries
+                if (faceRect.x >= 0 && faceRect.y >= 0 && faceRect.x + faceRect.width <= mat.cols() && faceRect.y + faceRect.height <= mat.rows()) {
+                    // Extract face embedding
+                    Mat face = new Mat(mat, faceRect);
+                    float[] embedding = extractFaceEmbedding(face);
+                    float[] dbEmbedding = db.getFaceEmbedding();
+
+                    String text;
+                    if (dbEmbedding == null) {
+                        // Save the face embedding to the database
+                        db.saveFaceEmbedding(embedding);
+                        Log.i(TAG, "Face embedding saved to database");
+                        runOnUiThread(() -> Toast.makeText(this, "New face saved!", Toast.LENGTH_SHORT).show());
+                    } else {
+                        // Calculate cosine similarity
+                        float similarity = db.cosineSimilarity(embedding, dbEmbedding);
+                        text = (similarity > 0.8f) ? "Face match!" : "Unmatched!";
+                        Imgproc.putText(overlay, text, new Point(faceRect.x, faceRect.y - 10),
+                                Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0, 255), thickness);
+                    }
+                    face.release();
+                }
+            }
         }
         return null;
     }

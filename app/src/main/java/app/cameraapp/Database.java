@@ -39,9 +39,9 @@ public class Database {
     }
 
     public float cosineSimilarity(float[] embedding1, float[] embedding2) {
-        float dotProduct = 0;
-        float norm1 = 0;
-        float norm2 = 0;
+        float dotProduct = 0.0f;
+        float norm1 = 0.0f;
+        float norm2 = 0.0f;
         for (int i = 0; i < embedding1.length; i++) {
             dotProduct += embedding1[i] * embedding2[i];
             norm1 += embedding1[i] * embedding1[i];
