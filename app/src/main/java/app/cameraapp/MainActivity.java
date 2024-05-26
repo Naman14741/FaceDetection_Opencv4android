@@ -66,9 +66,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
-    public ProcessMode processMode = ProcessMode.FACE_RECOGNITION;
+    public ProcessMode processMode = ProcessMode.NORMAL;
     private static final String TAG = "FaceDetection";
-    ImageButton capture, toggleFlash, switchCamera, personAdd, personOff, personSearch;
     private PreviewView previewView;
     private ImageView overlayImageView;
     private FaceDetectorYN faceDetector;
@@ -103,14 +102,12 @@ public class MainActivity extends AppCompatActivity {
 
         db = new Database(this);
         previewView = findViewById(R.id.previewView);
-        capture = findViewById(R.id.captureButton);
-        toggleFlash = findViewById(R.id.flashButton);
-        switchCamera = findViewById(R.id.switchCameraButton);
-        personAdd = findViewById(R.id.baselinepersonadd);
-
-        // Cần add chức năng cho các nút này
-        personOff = findViewById(R.id.roundpersonoff);
-        personSearch = findViewById(R.id.baselineperson);
+        ImageButton capture = findViewById(R.id.captureButton);
+        ImageButton toggleFlash = findViewById(R.id.flashButton);
+        ImageButton switchCamera = findViewById(R.id.switchCameraButton);
+        ImageButton personAdd = findViewById(R.id.baselinepersonadd);
+        ImageButton personOff = findViewById(R.id.roundpersonoff);
+        ImageButton personSearch = findViewById(R.id.baselineperson);
         overlayImageView = findViewById(R.id.overlayImageView);
 
         boolean isOpenCVLoaded = loadOpenCV();
@@ -130,6 +127,30 @@ public class MainActivity extends AppCompatActivity {
         capture.setOnClickListener(v -> captureImage());
         switchCamera.setOnClickListener(v -> switchCamera());
         toggleFlash.setOnClickListener(v -> toggleFlash());
+        personAdd.setOnClickListener(v -> {
+            processMode = ProcessMode.FACE_INSERTION;
+            Toast.makeText(this, "Face insertion mode", Toast.LENGTH_SHORT).show();
+        });
+        personOff.setOnClickListener(v -> {
+            ProcessMode previousMode = processMode;
+            if (previousMode == ProcessMode.FACE_RECOGNITION) {
+                Toast.makeText(this, "Face recognition turned off", Toast.LENGTH_SHORT).show();
+                processMode = ProcessMode.FACE_DETECTION;
+            } else if (previousMode == ProcessMode.FACE_DETECTION) {
+                Toast.makeText(this, "Face detection turned off", Toast.LENGTH_SHORT).show();
+                processMode = ProcessMode.NORMAL;
+            } else {
+                Toast.makeText(this, "Face recognition/detection already turned off", Toast.LENGTH_SHORT).show();
+            }
+        });
+        personSearch.setOnClickListener(v -> {
+            if (processMode != ProcessMode.FACE_RECOGNITION) {
+                Toast.makeText(this, "Face recognition turned on", Toast.LENGTH_SHORT).show();
+                processMode = ProcessMode.FACE_RECOGNITION;
+            } else {
+                Toast.makeText(this, "Face recognition already turned on", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void requestPermissions() {
@@ -464,10 +485,11 @@ public class MainActivity extends AppCompatActivity {
         faceDetector.setScoreThreshold(0.8f);
         faceDetector.detect(mat, faces);
 
-        if (processMode == ProcessMode.FACE_DETECTION) {
+        if (processMode == ProcessMode.FACE_INSERTION) {
+            runOnUiThread(visualizeFaceAdd(faces, mat));
+        } else if (processMode == ProcessMode.FACE_DETECTION) {
             runOnUiThread(visualizeFaceDetect(overlay, faces));
-        }
-        else if (processMode == ProcessMode.FACE_RECOGNITION) {
+        } else if (processMode == ProcessMode.FACE_RECOGNITION) {
             runOnUiThread(visualizeFaceRecognition(overlay, faces, mat));
         }
 
@@ -510,7 +532,68 @@ public class MainActivity extends AppCompatActivity {
         }
         return null;
     }
+    private Runnable visualizeFaceAdd(Mat faces, Mat mat) {
+        int numFaces = faces.rows();
+        if (numFaces != 0) {
+            float[] faceData = new float[faces.cols() * faces.channels()];
 
+            for (int i = 0; i < numFaces; i++) {
+                faces.get(i, 0, faceData);
+                Rect faceRect = new Rect(Math.round(faceData[0]), Math.round(faceData[1]),
+                        Math.round(faceData[2]), Math.round(faceData[3]));
+
+                // Check if the face rectangle is within the image boundaries
+                if (faceRect.x >= 0 && faceRect.y >= 0 && faceRect.x + faceRect.width <= mat.cols() && faceRect.y + faceRect.height <= mat.rows()) {
+                    // Extract face embedding
+                    Mat face = new Mat(mat, faceRect);
+                    float[] embedding = extractFaceEmbedding(face);
+                    float[] dbEmbedding = db.getFaceEmbedding();
+
+                    if (dbEmbedding == null) {
+                        if (!isDialogShown) {
+                            isDialogShown = true;
+                            runOnUiThread(() -> {
+                                // Show a dialog asking the user if they want to save the new face
+                                new AlertDialog.Builder(this)
+                                        .setTitle("No Saved Face")
+                                        .setMessage("No saved face found. Would you like to save this new face?")
+                                        .setPositiveButton("Yes", (dialog, which) -> {
+                                            // Save the face embedding to the database
+                                            db.saveFaceEmbedding(embedding);
+                                            Toast.makeText(this, "New face saved!", Toast.LENGTH_SHORT).show();
+                                            Log.i(TAG, "Face embedding saved to database");
+                                        })
+                                        .setNegativeButton("No", (dialog, which) -> {
+                                            // Do nothing
+                                        })
+                                        .show();
+                            });
+                        }
+                    } else {
+                        runOnUiThread(() -> {
+                            // Show a dialog asking the user if they want to save the new face
+                            new AlertDialog.Builder(this)
+                                    .setTitle("Saved Face Found")
+                                    .setMessage("Saved face found. Would you like to save this new face")
+                                    .setPositiveButton("Yes", (dialog, which) -> {
+                                        // Save the face embedding to the database
+                                        db.saveFaceEmbedding(embedding);
+                                        Toast.makeText(this, "New face saved!", Toast.LENGTH_SHORT).show();
+                                        Log.i(TAG, "Face embedding saved to database");
+                                    })
+                                    .setNegativeButton("No", (dialog, which) -> {
+                                        // Do nothing
+                                    })
+                                    .show();
+                        });
+                    }
+                    face.release();
+                }
+            }
+        }
+        processMode = ProcessMode.FACE_RECOGNITION;
+        return null;
+    }
     private boolean isDialogShown = false;
     private Runnable visualizeFaceRecognition(Mat overlay, Mat faces, Mat mat) {
         int numFaces = faces.rows();
@@ -532,26 +615,7 @@ public class MainActivity extends AppCompatActivity {
 
                     String text;
                     if (dbEmbedding == null) {
-                        if (!isDialogShown) {
-                            isDialogShown = true;
-                            runOnUiThread(() -> {
-                                // Show a dialog asking the user if they want to save the new face
-                                new AlertDialog.Builder(this)
-                                        .setTitle("No Saved Face")
-                                        .setMessage("No saved face found. Would you like to save this new face?")
-                                        .setPositiveButton("Yes", (dialog, which) -> {
-                                            // Save the face embedding to the database
-                                            db.saveFaceEmbedding(embedding);
-                                            Toast.makeText(this, "New face saved!", Toast.LENGTH_SHORT).show();
-                                            Log.i(TAG, "Face embedding saved to database");
-                                        })
-                                        .setNegativeButton("No", (dialog, which) -> {
-                                            // Do nothing
-                                        })
-                                        .show();
-                            });
-                        }
-
+                        processMode = ProcessMode.FACE_INSERTION;
                     } else {
                         // Calculate cosine similarity
                         float similarity = db.cosineSimilarity(embedding, dbEmbedding);
