@@ -68,7 +68,7 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity {
     public ProcessMode processMode = ProcessMode.FACE_RECOGNITION;
     private static final String TAG = "FaceDetection";
-    ImageButton capture, toggleFlash, switchCamera;
+    ImageButton capture, toggleFlash, switchCamera, personAdd, personOff, personSearch;
     private PreviewView previewView;
     private ImageView overlayImageView;
     private FaceDetectorYN faceDetector;
@@ -106,6 +106,11 @@ public class MainActivity extends AppCompatActivity {
         capture = findViewById(R.id.captureButton);
         toggleFlash = findViewById(R.id.flashButton);
         switchCamera = findViewById(R.id.switchCameraButton);
+        personAdd = findViewById(R.id.baselinepersonadd);
+
+        // Cần add chức năng cho các nút này
+        personOff = findViewById(R.id.roundpersonoff);
+        personSearch = findViewById(R.id.baselineperson);
         overlayImageView = findViewById(R.id.overlayImageView);
 
         boolean isOpenCVLoaded = loadOpenCV();
