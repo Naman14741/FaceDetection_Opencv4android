@@ -1,6 +1,7 @@
 package app.cameraapp;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -184,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
 
         // For debugging purposes
+        db.clearFaceEmbedding();
         backgroundExecutor.shutdown();
     }
 
@@ -504,6 +506,7 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
+    private boolean isDialogShown = false;
     private Runnable visualizeFaceRecognition(Mat overlay, Mat faces, Mat mat) {
         int numFaces = faces.rows();
         if (numFaces != 0) {
@@ -514,7 +517,6 @@ public class MainActivity extends AppCompatActivity {
                 faces.get(i, 0, faceData);
                 Rect faceRect = new Rect(Math.round(faceData[0]), Math.round(faceData[1]),
                         Math.round(faceData[2]), Math.round(faceData[3]));
-                Imgproc.rectangle(overlay, faceRect, new Scalar(0, 255, 0, 255), thickness); // Using RGBA for transparency
 
                 // Check if the face rectangle is within the image boundaries
                 if (faceRect.x >= 0 && faceRect.y >= 0 && faceRect.x + faceRect.width <= mat.cols() && faceRect.y + faceRect.height <= mat.rows()) {
@@ -525,16 +527,46 @@ public class MainActivity extends AppCompatActivity {
 
                     String text;
                     if (dbEmbedding == null) {
-                        // Save the face embedding to the database
-                        db.saveFaceEmbedding(embedding);
-                        Log.i(TAG, "Face embedding saved to database");
-                        runOnUiThread(() -> Toast.makeText(this, "New face saved!", Toast.LENGTH_SHORT).show());
+                        if (!isDialogShown) {
+                            isDialogShown = true;
+                            runOnUiThread(() -> {
+                                // Show a dialog asking the user if they want to save the new face
+                                new AlertDialog.Builder(this)
+                                        .setTitle("No Saved Face")
+                                        .setMessage("No saved face found. Would you like to save this new face?")
+                                        .setPositiveButton("Yes", (dialog, which) -> {
+                                            // Save the face embedding to the database
+                                            db.saveFaceEmbedding(embedding);
+                                            Toast.makeText(this, "New face saved!", Toast.LENGTH_SHORT).show();
+                                            Log.i(TAG, "Face embedding saved to database");
+                                        })
+                                        .setNegativeButton("No", (dialog, which) -> {
+                                            // Do nothing
+                                        })
+                                        .show();
+                            });
+                        }
+
                     } else {
                         // Calculate cosine similarity
                         float similarity = db.cosineSimilarity(embedding, dbEmbedding);
-                        text = (similarity > 0.8f) ? "Face match!" : "Unmatched!";
+                        Scalar color;
+                        if (similarity > 0.8) {
+                            text = "Matched";
+                            color = new Scalar(0, 255, 0, 255);
+                            Imgproc.rectangle(overlay, faceRect, new Scalar(0, 255, 0, 255), thickness); // Using RGBA for transparency
+
+                        } else {
+                            text = "Not Matched";
+                            color = new Scalar(255, 0, 0, 255);
+                            Imgproc.rectangle(overlay, faceRect, new Scalar(255, 0, 0, 255), thickness); // Using RGBA for transparency
+
+                        }
                         Imgproc.putText(overlay, text, new Point(faceRect.x, faceRect.y - 10),
-                                Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0, 255), thickness);
+                                Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness);
+                        Log.i(TAG, "Cosine similarity: " + similarity);
+                        Log.i(TAG, "Embedding: " + Arrays.toString(embedding));
+                        Log.i(TAG, "Database embedding: " + Arrays.toString(dbEmbedding));
                     }
                     face.release();
                 }
