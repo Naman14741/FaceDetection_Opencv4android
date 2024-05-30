@@ -209,9 +209,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        // For debugging purposes
-        db.clearFaceEmbedding();
         backgroundExecutor.shutdown();
     }
 
@@ -222,6 +219,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startCamera() {
+        android.util.Size targetResolution = new android.util.Size(4 * previewView.getWidth(), 4 * previewView.getHeight());
         ListenableFuture<ProcessCameraProvider> listenableFuture = ProcessCameraProvider.getInstance(this);
 
         listenableFuture.addListener(() -> {
@@ -238,7 +236,8 @@ public class MainActivity extends AppCompatActivity {
 
                 // Camera resolution
                 ResolutionSelector resolutionSelector = new ResolutionSelector.Builder()
-                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+                        .setResolutionStrategy(new ResolutionStrategy(targetResolution,
+                                ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
                         .build();
 
                 ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
@@ -504,7 +503,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private float[] extractFaceEmbedding(Mat face) {
-        Mat blob = Dnn.blobFromImage(face, 1.0 / 128.0, new Size(112, 112), new Scalar(127.5, 127.5, 127.5), true, false);
+        Mat blob = Dnn.blobFromImage(face, 1.0 / 255.0, new Size(112, 112), new Scalar(127.5, 127.5, 127.5), true, false);
         faceRecognizer.setInput(blob);
         Mat embedding = faceRecognizer.forward();
 
@@ -519,16 +518,37 @@ public class MainActivity extends AppCompatActivity {
         return embeddingData;
     }
 
+    private void drawRoundedCornerRectangle(Mat overlay, float[] rectangle, Scalar color) {
+        int thickness = 1;
+        int x = Math.round(rectangle[0]);
+        int y = Math.round(rectangle[1]);
+        int w = Math.round(rectangle[2]);
+        int h = Math.round(rectangle[3]);
+        int r = Math.min(5, Math.min(w / 2, h / 2));
+
+        Point topLeft = new Point(x + r, y + r);
+        Point topRight = new Point(x + w - r, y + r);
+        Point bottomRight = new Point(x + w - r, y + h - r);
+        Point bottomLeft = new Point(x + r, y + h - r);
+
+        Imgproc.ellipse(overlay, topLeft, new Size(r, r), 180, 0, 90, color, thickness);
+        Imgproc.ellipse(overlay, topRight, new Size(r, r), 270, 0, 90, color, thickness);
+        Imgproc.ellipse(overlay, bottomRight, new Size(r, r), 0, 0, 90, color, thickness);
+        Imgproc.ellipse(overlay, bottomLeft, new Size(r, r), 90, 0, 90, color, thickness);
+
+        Imgproc.line(overlay, new Point(x + r, y), new Point(x + w - r, y), color, thickness);
+        Imgproc.line(overlay, new Point(x + w, y + r), new Point(x + w, y + h - r), color, thickness);
+        Imgproc.line(overlay, new Point(x + w - r, y + h), new Point(x + r, y + h), color, thickness);
+        Imgproc.line(overlay, new Point(x, y + h - r), new Point(x, y + r), color, thickness);
+    }
+
     // Draw bounding boxes on the transparent overlay
     private Runnable visualizeFaceDetect(Mat overlay, Mat faces) {
-        int thickness = 2;
         float[] faceData = new float[faces.cols() * faces.channels()];
 
         for (int i = 0; i < faces.rows(); i++) {
             faces.get(i, 0, faceData);
-            Imgproc.rectangle(overlay, new Rect(Math.round(faceData[0]), Math.round(faceData[1]),
-                            Math.round(faceData[2]), Math.round(faceData[3])),
-                    new Scalar(0, 255, 0, 255), thickness); // Using RGBA for transparency
+            drawRoundedCornerRectangle(overlay, faceData, new Scalar(0, 255, 0, 255));
         }
         return null;
     }
@@ -598,7 +618,6 @@ public class MainActivity extends AppCompatActivity {
     private Runnable visualizeFaceRecognition(Mat overlay, Mat faces, Mat mat) {
         int numFaces = faces.rows();
         if (numFaces != 0) {
-            int thickness = 2;
             float[] faceData = new float[faces.cols() * faces.channels()];
 
             for (int i = 0; i < numFaces; i++) {
@@ -623,16 +642,14 @@ public class MainActivity extends AppCompatActivity {
                         if (similarity > 0.8) {
                             text = "Matched";
                             color = new Scalar(0, 255, 0, 255);
-                            Imgproc.rectangle(overlay, faceRect, new Scalar(0, 255, 0, 255), thickness); // Using RGBA for transparency
-
+                            drawRoundedCornerRectangle(overlay, faceData, color);
                         } else {
                             text = "Not Matched";
                             color = new Scalar(255, 0, 0, 255);
-                            Imgproc.rectangle(overlay, faceRect, new Scalar(255, 0, 0, 255), thickness); // Using RGBA for transparency
-
+                            drawRoundedCornerRectangle(overlay, faceData, color);
                         }
                         Imgproc.putText(overlay, text, new Point(faceRect.x, faceRect.y - 10),
-                                Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness);
+                                Imgproc.FONT_HERSHEY_SIMPLEX, 0.4, color, 1);
                         Log.i(TAG, "Cosine similarity: " + similarity);
                         Log.i(TAG, "Embedding: " + Arrays.toString(embedding));
                         Log.i(TAG, "Database embedding: " + Arrays.toString(dbEmbedding));
