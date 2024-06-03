@@ -391,6 +391,7 @@ public class MainActivity extends AppCompatActivity {
 
         Mat rgbMat = new Mat();
         Imgproc.cvtColor(yuvMat, rgbMat, Imgproc.COLOR_YUV2RGB_I420);
+
         if(lensFacing == CameraSelector.LENS_FACING_FRONT){
             Core.rotate(rgbMat, rgbMat, Core.ROTATE_90_COUNTERCLOCKWISE);
         }
