@@ -64,6 +64,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     public ProcessMode processMode = ProcessMode.NORMAL;
@@ -73,10 +74,10 @@ public class MainActivity extends AppCompatActivity {
     private FaceDetectorYN faceDetector;
     private Net faceRecognizer;
     private Database db;
-    int lensFacing = CameraSelector.LENS_FACING_BACK;
+    int lensFacing = CameraSelector.LENS_FACING_FRONT;
     Camera camera;
     private Size mInputSize = null;
-    private final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
+    private ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
     private final ActivityResultLauncher<String[]> requestPermissionLauncher = registerForActivityResult(
         new ActivityResultContracts.RequestMultiplePermissions(),
         result -> {
@@ -356,7 +357,17 @@ public class MainActivity extends AppCompatActivity {
     public void switchCamera() {
         lensFacing = (lensFacing == CameraSelector.LENS_FACING_BACK) ?
                 CameraSelector.LENS_FACING_FRONT : CameraSelector.LENS_FACING_BACK;
+        backgroundExecutor.shutdown();
+        try {
+            if (!backgroundExecutor.awaitTermination(1, TimeUnit.SECONDS)) {
+                backgroundExecutor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            backgroundExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
         startCamera();
+        backgroundExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
     public void toggleFlash() {
@@ -379,19 +390,22 @@ public class MainActivity extends AppCompatActivity {
         int uSize = uBuffer.remaining();
         int vSize = vBuffer.remaining();
 
-        byte[] i420 = new byte[ySize + uSize + vSize];
+        byte[] nv21 = new byte[ySize + uSize + vSize];
 
         // U and V are swapped
-        yBuffer.get(i420, 0, ySize);
-        vBuffer.get(i420, ySize, vSize);
-        uBuffer.get(i420, ySize + vSize, uSize);
+        yBuffer.get(nv21, 0, ySize);
+        vBuffer.get(nv21, ySize, vSize);
+        uBuffer.get(nv21, ySize + vSize, uSize);
 
         Mat yuvMat = new Mat(image.getHeight() + image.getHeight() / 2, image.getWidth(), CvType.CV_8UC1);
-        yuvMat.put(0, 0, i420);
+        yuvMat.put(0, 0, nv21);
 
         Mat rgbMat = new Mat();
-        Imgproc.cvtColor(yuvMat, rgbMat, Imgproc.COLOR_YUV2RGB_I420);
-        Core.rotate(rgbMat, rgbMat, Core.ROTATE_90_CLOCKWISE);
+        Imgproc.cvtColor(yuvMat, rgbMat, Imgproc.COLOR_YUV2RGB_NV21);
+        if(lensFacing == CameraSelector.LENS_FACING_FRONT){
+            Core.rotate(rgbMat, rgbMat, Core.ROTATE_90_COUNTERCLOCKWISE);
+        }
+        else Core.rotate(rgbMat, rgbMat, Core.ROTATE_90_CLOCKWISE);
         return rgbMat;
     }
 
@@ -465,40 +479,41 @@ public class MainActivity extends AppCompatActivity {
 
         // Convert ImageProxy to Mat
         Mat mat = yuvToRgb(imageProxy);
+        updateOverlay(mat);
 
-        if (mInputSize == null) {
-            mInputSize = new Size(mat.cols(), mat.rows());
-            faceDetector.setInputSize(mInputSize);
-        }
-
-        // Create a transparent overlay
-        Mat overlay = Mat.zeros(mat.size(), CvType.CV_8UC4);
-
-        // Resize mat to the input size of the model
-        Imgproc.resize(mat, mat, mInputSize);
-
-        // Convert color to BGR
-        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_RGB2BGR);
-
-        Mat faces = new Mat();
-        faceDetector.setScoreThreshold(0.8f);
-        faceDetector.detect(mat, faces);
-
-        if (processMode == ProcessMode.FACE_INSERTION) {
-            runOnUiThread(visualizeFaceAdd(faces, mat));
-        } else if (processMode == ProcessMode.FACE_DETECTION) {
-            runOnUiThread(visualizeFaceDetect(overlay, faces));
-        } else if (processMode == ProcessMode.FACE_RECOGNITION) {
-            runOnUiThread(visualizeFaceRecognition(overlay, faces, mat));
-        }
-
-        // Update the overlay ImageView with the processed overlay
-        updateOverlay(overlay);
+//        if (mInputSize == null) {
+//            mInputSize = new Size(mat.cols(), mat.rows());
+//            faceDetector.setInputSize(mInputSize);
+//        }
+//
+//        // Create a transparent overlay
+//        Mat overlay = Mat.zeros(mat.size(), CvType.CV_8UC4);
+//
+//        // Resize mat to the input size of the model
+//        Imgproc.resize(mat, mat, mInputSize);
+//
+//        // Convert color to BGR
+//        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_RGB2BGR);
+//
+//        Mat faces = new Mat();
+//        faceDetector.setScoreThreshold(0.8f);
+//        faceDetector.detect(mat, faces);
+//
+//        if (processMode == ProcessMode.FACE_INSERTION) {
+//            runOnUiThread(visualizeFaceAdd(faces, mat));
+//        } else if (processMode == ProcessMode.FACE_DETECTION) {
+//            runOnUiThread(visualizeFaceDetect(overlay, faces));
+//        } else if (processMode == ProcessMode.FACE_RECOGNITION) {
+//            runOnUiThread(visualizeFaceRecognition(overlay, faces, mat));
+//        }
+//
+//        // Update the overlay ImageView with the processed overlay
+//        updateOverlay(overlay);
 
         // Release resources
         mat.release();
-        faces.release();
-        overlay.release();
+//        faces.release();
+//        overlay.release();
         imageProxy.close();
     }
 
@@ -614,6 +629,7 @@ public class MainActivity extends AppCompatActivity {
         processMode = ProcessMode.FACE_RECOGNITION;
         return null;
     }
+
     private boolean isDialogShown = false;
     private Runnable visualizeFaceRecognition(Mat overlay, Mat faces, Mat mat) {
         int numFaces = faces.rows();

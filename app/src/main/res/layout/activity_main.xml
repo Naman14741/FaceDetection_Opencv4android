@@ -16,8 +16,8 @@
 
     <ImageView
         android:id="@+id/overlayImageView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="276dp"
+        android:layout_height="447dp"
         android:background="@android:color/transparent"
         android:contentDescription="@null"
         android:scaleType="centerCrop"
