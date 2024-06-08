@@ -29,7 +29,7 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/img_1"
-        android:label="aura"
+        android:label="Aura"
         android:roundIcon="@drawable/img_1"
         android:supportsRtl="true"
         android:theme="@style/Theme.CameraApp"
