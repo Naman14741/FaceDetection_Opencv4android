@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -10,41 +10,43 @@
 
     <androidx.camera.view.PreviewView
         android:id="@+id/previewView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true" >
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" >
+
     </androidx.camera.view.PreviewView>
+
+    <ImageButton
+        android:id="@+id/captureButton"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/capture_button"
+        android:contentDescription="@null"
+        android:importantForAccessibility="no"
+        android:padding="10dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5" />
 
     <ImageView
         android:id="@+id/overlayImageView"
-        android:layout_marginStart="100dp"
-        android:layout_alignParentBottom="true"
-        android:layout_width="240dp"
-        android:layout_height="135dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:background="@android:color/transparent"
         android:contentDescription="@null"
         android:scaleType="centerCrop"
         android:visibility="visible" />
 
     <ImageButton
-        android:id="@+id/captureButton"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_centerVertical="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="20dp"
-        android:background="@drawable/capture_button"
-        android:contentDescription="@null"
-        android:importantForAccessibility="no"
-        android:padding="10dp"
-        android:visibility="visible" />
-
-    <ImageButton
         android:id="@+id/flashButton"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
         android:layout_marginStart="30dp"
         android:layout_marginBottom="30dp"
         android:background="?android:attr/selectableItemBackgroundBorderless"
@@ -52,61 +54,65 @@
         android:rotationX="2"
         android:src="@drawable/flash_on_24"
         android:visibility="visible"
-        app:tint="#ffffff" />
+        app:tint="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageButton
         android:id="@+id/switchCameraButton"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
         android:layout_marginEnd="30dp"
         android:layout_marginTop="30dp"
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:contentDescription="@null"
         android:src="@drawable/switch_camera_android_24"
         android:visibility="visible"
-        app:tint="#ffffff" />
+        app:tint="#ffffff"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <ImageButton
         android:id="@+id/roundpersonoff"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
         android:layout_marginStart="30dp"
         android:layout_marginTop="30dp"
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:contentDescription="@null"
         android:src="@drawable/baseline_person_off_24"
         android:visibility="visible"
-        app:tint="#ffffff" />
+        app:tint="#ffffff"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageButton
         android:id="@+id/baselineperson"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
         android:layout_marginStart="30dp"
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:contentDescription="@null"
         android:src="@drawable/baseline_person_search_24"
         android:visibility="visible"
-        app:tint="#ffffff" />
+        app:tint="#ffffff"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5" />
 
     <ImageButton
         android:id="@+id/baselinepersonadd"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
         android:layout_marginEnd="30dp"
         android:layout_marginBottom="30dp"
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:contentDescription="@null"
         android:src="@drawable/baseline_person_add_24"
         android:visibility="visible"
-        app:tint="#ffffff" />
+        app:tint="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

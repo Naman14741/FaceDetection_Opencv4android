@@ -1,12 +1,14 @@
 package app.cameraapp;
 
 import android.content.ContentValues;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -14,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
@@ -144,6 +147,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        adjustOverlayImageView();
+    }
+
+    private void adjustOverlayImageView() {
+        // Adjust overlayImageView layout parameters to match full screen
+        ViewGroup.LayoutParams params = overlayImageView.getLayoutParams();
+        params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+        params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        overlayImageView.setLayoutParams(params);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         backgroundExecutor.shutdown();
@@ -156,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startCamera() {
-        // android.util.Size targetResolution = new android.util.Size(4 * previewView.getWidth(), 4 * previewView.getHeight());
+        android.util.Size targetResolution = new android.util.Size(4 * previewView.getWidth(), 4 * previewView.getHeight());
         ListenableFuture<ProcessCameraProvider> listenableFuture = ProcessCameraProvider.getInstance(this);
 
         listenableFuture.addListener(() -> {
@@ -172,10 +189,10 @@ public class MainActivity extends AppCompatActivity {
                 ImageCapture imageCapture = new ImageCapture.Builder().build();
 
                 // Camera resolution
-//                ResolutionSelector resolutionSelector = new ResolutionSelector.Builder()
-//                        .setResolutionStrategy(new ResolutionStrategy(targetResolution,
-//                                ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
-//                        .build();
+                ResolutionSelector resolutionSelector = new ResolutionSelector.Builder()
+                        .setResolutionStrategy(new ResolutionStrategy(targetResolution,
+                                ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
+                        .build();
 
                 ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
                         // .setResolutionSelector(resolutionSelector)
@@ -281,12 +298,44 @@ public class MainActivity extends AppCompatActivity {
 
         Mat rgbMat = new Mat();
 
+        // Get image rotation
+        int rotationDegrees = image.getImageInfo().getRotationDegrees();
+        // Toast.makeText(this, "Rotation: " + rotationDegrees, Toast.LENGTH_SHORT).show();
         Imgproc.cvtColor(yuvMat, rgbMat, Imgproc.COLOR_YUV2RGB_NV21);
-        if(lensFacing == CameraSelector.LENS_FACING_FRONT){
-            Core.rotate(rgbMat, rgbMat, Core.ROTATE_90_COUNTERCLOCKWISE);
-            Core.flip(rgbMat, rgbMat, 1);
+        if (lensFacing == CameraSelector.LENS_FACING_FRONT) {
+            switch (rotationDegrees) {
+                case 90:
+                    Core.rotate(rgbMat, rgbMat, Core.ROTATE_90_COUNTERCLOCKWISE);
+                    Core.flip(rgbMat, rgbMat, 1); // Flip horizontally
+                    break;
+                case 180:
+                    Core.rotate(rgbMat, rgbMat, Core.ROTATE_180);
+                    Core.flip(rgbMat, rgbMat, 1); // Flip horizontally
+                    break;
+                case 270:
+                    Core.rotate(rgbMat, rgbMat, Core.ROTATE_90_CLOCKWISE);
+                    Core.flip(rgbMat, rgbMat, 0); // Flip horizontally
+                    break;
+                default:
+                    Core.flip(rgbMat, rgbMat, 1); // Flip horizontally for 0 degrees
+                    break;
+            }
+        } else {
+            switch (rotationDegrees) {
+                case 90:
+                    Core.rotate(rgbMat, rgbMat, Core.ROTATE_90_CLOCKWISE);
+                    break;
+                case 180:
+                    Core.rotate(rgbMat, rgbMat, Core.ROTATE_180);
+                    break;
+                case 270:
+                    Core.rotate(rgbMat, rgbMat, Core.ROTATE_90_COUNTERCLOCKWISE);
+                    break;
+                default:
+                    // No rotation needed for 0 degrees
+                    break;
+            }
         }
-        else Core.rotate(rgbMat, rgbMat, Core.ROTATE_90_CLOCKWISE);
         return rgbMat;
     }
 
