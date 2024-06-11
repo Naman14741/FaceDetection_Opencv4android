@@ -7,6 +7,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.hardware.display.DisplayManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Display;
@@ -55,8 +57,10 @@ import java.util.concurrent.TimeUnit;
 import app.cameraapp.Helper.ProcessMode;
 
 public class MainActivity extends AppCompatActivity {
-    DisplayManager displayManager;
-    DisplayManager.DisplayListener displayListener;
+    private DisplayManager displayManager;
+    private DisplayManager.DisplayListener displayListener;
+    float currentRotation = 0;
+    private boolean rotated = false;
     private boolean isCameraStarted = false;
     public static ProcessMode processMode = ProcessMode.NORMAL;
     private static final String TAG = "FaceDetection";
@@ -167,10 +171,18 @@ public class MainActivity extends AppCompatActivity {
             public void onDisplayChanged(int displayId) {
                 int difference = displayManager.getDisplay(displayId).getRotation() - displayRotation;
                 displayRotation = displayManager.getDisplay(displayId).getRotation();
-                Log.i(TAG, "Display rotation: " + difference);
-                if (difference == 2 || difference == -2) {
+                if (difference == 2 || difference == -2 && !rotated) {
+                    currentRotation = (currentRotation + 180) % 360;
+                    rotated = true;
                     Log.i(TAG, "Display rotated by 180 degrees");
                     runOnUiThread(() -> Toast.makeText(MainActivity.this, "Display rotated by 180 degrees", Toast.LENGTH_SHORT).show());
+                    if (rotated) {
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            // Rotate the overlay after a delay
+                            overlayImageView.setRotation(currentRotation);
+                            rotated = false;
+                        }, 3000);
+                    }
                 }
             }
         };
@@ -416,7 +428,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Update the overlay ImageView with the processed overlay
         helper.updateOverlay(overlay);
-        // helper.updateOverlay(mat);
 
         // Release resources
         mat.release();
