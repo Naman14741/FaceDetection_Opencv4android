@@ -4,10 +4,12 @@ import android.content.ContentValues;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.hardware.display.DisplayManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Display;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageButton;
@@ -53,6 +55,9 @@ import java.util.concurrent.TimeUnit;
 import app.cameraapp.Helper.ProcessMode;
 
 public class MainActivity extends AppCompatActivity {
+    DisplayManager displayManager;
+    DisplayManager.DisplayListener displayListener;
+    private boolean isCameraStarted = false;
     public static ProcessMode processMode = ProcessMode.NORMAL;
     private static final String TAG = "FaceDetection";
     private PreviewView previewView;
@@ -65,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     private final Visualizer visualizer = new Visualizer(this);
     private final Permissions permissions = new Permissions(this);
     int lensFacing = CameraSelector.LENS_FACING_BACK;
+    private int displayRotation = 0;
     Camera camera;
     private Size mInputSize = null;
     private ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
@@ -144,6 +150,30 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Face recognition already turned on", Toast.LENGTH_SHORT).show();
             }
         });
+
+        displayManager = (DisplayManager) getSystemService(DISPLAY_SERVICE);
+        Display defaultDisplay = displayManager.getDisplay(Display.DEFAULT_DISPLAY);
+        if (defaultDisplay != null) {
+            displayRotation = defaultDisplay.getRotation();
+        }
+        displayListener = new DisplayManager.DisplayListener() {
+            @Override
+            public void onDisplayAdded(int displayId) {}
+
+            @Override
+            public void onDisplayRemoved(int displayId) {}
+
+            @Override
+            public void onDisplayChanged(int displayId) {
+                int difference = displayManager.getDisplay(displayId).getRotation() - displayRotation;
+                displayRotation = displayManager.getDisplay(displayId).getRotation();
+                Log.i(TAG, "Display rotation: " + difference);
+                if (difference == 2 || difference == -2) {
+                    Log.i(TAG, "Display rotated by 180 degrees");
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Display rotated by 180 degrees", Toast.LENGTH_SHORT).show());
+                }
+            }
+        };
     }
 
     @Override
@@ -170,6 +200,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         backgroundExecutor.shutdown();
+        displayManager.unregisterDisplayListener(displayListener);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        displayManager.registerDisplayListener(displayListener, null);
     }
 
     public void startCamera() {
@@ -195,8 +232,9 @@ public class MainActivity extends AppCompatActivity {
                         .build();
 
                 ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
-                        // .setResolutionSelector(resolutionSelector)
+                        .setResolutionSelector(resolutionSelector)
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                        .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
                         .build();
 
                 imageAnalysis.setAnalyzer(backgroundExecutor, this::processImage);
@@ -205,6 +243,7 @@ public class MainActivity extends AppCompatActivity {
 
                 camera = cameraProvider.bindToLifecycle(MainActivity.this, cameraSelector, preview, imageCapture, imageAnalysis);
                 preview.setSurfaceProvider(previewView.getSurfaceProvider());
+                isCameraStarted = true;
             } catch (ExecutionException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -340,7 +379,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void processImage(ImageProxy imageProxy) {
-        if (processMode == ProcessMode.NORMAL) {
+        if (!isCameraStarted || processMode == ProcessMode.NORMAL) {
             imageProxy.close();
             return;
         }
@@ -377,6 +416,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Update the overlay ImageView with the processed overlay
         helper.updateOverlay(overlay);
+        // helper.updateOverlay(mat);
 
         // Release resources
         mat.release();
