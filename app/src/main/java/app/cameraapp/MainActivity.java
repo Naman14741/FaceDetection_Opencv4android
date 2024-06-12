@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     float currentRotation = 0;
     private boolean rotated = false;
     private boolean isCameraStarted = false;
-    public static ProcessMode processMode = ProcessMode.NORMAL;
+    public static ProcessMode processMode = ProcessMode.FACE_DETECTION;
     private static final String TAG = "FaceDetection";
     private PreviewView previewView;
     public ImageView overlayImageView;
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
     private int displayRotation = 0;
     Camera camera;
     private Size mInputSize = null;
-    private ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
+    private ExecutorService backgroundExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     public final ActivityResultLauncher<String[]> requestPermissionLauncher = registerForActivityResult(
         new ActivityResultContracts.RequestMultiplePermissions(),
         result -> {
@@ -206,23 +206,42 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         backgroundExecutor.shutdown();
+        try {
+            if (!backgroundExecutor.awaitTermination(1, TimeUnit.SECONDS)) {
+                backgroundExecutor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            backgroundExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         backgroundExecutor.shutdown();
+        try {
+            if (!backgroundExecutor.awaitTermination(1, TimeUnit.SECONDS)) {
+                backgroundExecutor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            backgroundExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
         displayManager.unregisterDisplayListener(displayListener);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        if (backgroundExecutor.isShutdown()) {
+            backgroundExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        }
         displayManager.registerDisplayListener(displayListener, null);
     }
 
     public void startCamera() {
-        android.util.Size targetResolution = new android.util.Size(4 * previewView.getWidth(), 4 * previewView.getHeight());
+        //android.util.Size targetResolution = new android.util.Size(4 * previewView.getWidth(), 4 * previewView.getHeight());
         ListenableFuture<ProcessCameraProvider> listenableFuture = ProcessCameraProvider.getInstance(this);
 
         listenableFuture.addListener(() -> {
@@ -239,8 +258,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Camera resolution
                 ResolutionSelector resolutionSelector = new ResolutionSelector.Builder()
-                        .setResolutionStrategy(new ResolutionStrategy(targetResolution,
-                                ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
+                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
                         .build();
 
                 ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
