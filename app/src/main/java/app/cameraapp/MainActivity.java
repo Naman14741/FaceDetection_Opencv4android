@@ -59,7 +59,7 @@ import app.cameraapp.Helper.ProcessMode;
 public class MainActivity extends AppCompatActivity {
     private DisplayManager displayManager;
     private DisplayManager.DisplayListener displayListener;
-    float currentRotation = 0;
+    public float currentRotation = 0;
     private boolean rotated = false;
     private boolean isCameraStarted = false;
     public static ProcessMode processMode = ProcessMode.NORMAL;
@@ -175,13 +175,12 @@ public class MainActivity extends AppCompatActivity {
                     currentRotation = (currentRotation + 180) % 360;
                     rotated = true;
                     Log.i(TAG, "Display rotated by 180 degrees");
-                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Display rotated by 180 degrees", Toast.LENGTH_SHORT).show());
                     if (rotated) {
                         new Handler(Looper.getMainLooper()).postDelayed(() -> {
                             // Rotate the overlay after a delay
                             overlayImageView.setRotation(currentRotation);
                             rotated = false;
-                        }, 3000);
+                        }, 2000);
                     }
                 }
             }
@@ -239,8 +238,8 @@ public class MainActivity extends AppCompatActivity {
 
                 // Camera resolution
                 ResolutionSelector resolutionSelector = new ResolutionSelector.Builder()
-                        .setResolutionStrategy(new ResolutionStrategy(targetResolution,
-                                ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
+//                        .setResolutionStrategy(new ResolutionStrategy(targetResolution,
+//                                ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER))
                         .build();
 
                 ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
@@ -351,7 +350,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Get image rotation
         int rotationDegrees = image.getImageInfo().getRotationDegrees();
-        // Toast.makeText(this, "Rotation: " + rotationDegrees, Toast.LENGTH_SHORT).show();
         Imgproc.cvtColor(yuvMat, rgbMat, Imgproc.COLOR_YUV2RGB_NV21);
         if (lensFacing == CameraSelector.LENS_FACING_FRONT) {
             switch (rotationDegrees) {
@@ -383,7 +381,6 @@ public class MainActivity extends AppCompatActivity {
                     Core.rotate(rgbMat, rgbMat, Core.ROTATE_90_COUNTERCLOCKWISE);
                     break;
                 default:
-                    // No rotation needed for 0 degrees
                     break;
             }
         }
