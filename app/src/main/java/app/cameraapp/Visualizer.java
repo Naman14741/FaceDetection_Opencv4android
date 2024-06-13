@@ -47,43 +47,47 @@ public class Visualizer {
     }
     public Runnable visualizeFaceAdd(Mat faces, Mat mat) {
         int numFaces = faces.rows();
+        if (numFaces == 0) {
+            MainActivity.processMode = Helper.ProcessMode.FACE_RECOGNITION;
+            return null;
+        }
+
+        float[] faceData = new float[faces.cols() * faces.channels()];
         boolean isFaceProcessed = false;
 
-        if (numFaces != 0) {
-            float[] faceData = new float[faces.cols() * faces.channels()];
+        for (int i = 0; i < numFaces && !isFaceProcessed; i++) {
+            faces.get(i, 0, faceData);
+            Rect faceRect = new Rect(Math.round(faceData[0]), Math.round(faceData[1]),
+                    Math.round(faceData[2]), Math.round(faceData[3]));
 
-            for (int i = 0; i < numFaces; i++) {
-                if (isFaceProcessed) {
-                    mainActivity.runOnUiThread(() -> Toast.makeText(mainActivity, "Multiple faces detected. Only the first face will be processed.", Toast.LENGTH_SHORT).show());
-                    break;
-                }
+            Imgproc.rectangle(mat, faceRect.tl(), faceRect.br(), new Scalar(0, 255, 0), 2);
 
-                faces.get(i, 0, faceData);
-                Rect faceRect = new Rect(Math.round(faceData[0]), Math.round(faceData[1]),
-                        Math.round(faceData[2]), Math.round(faceData[3]));
-                Imgproc.rectangle(mat, faceRect.tl(), faceRect.br(), new Scalar(0, 255, 0), 2);
+            if (faceRect.x >= 0 && faceRect.y >= 0 && faceRect.x + faceRect.width <= mat.cols() && faceRect.y + faceRect.height <= mat.rows()) {
+                Mat face = new Mat(mat, faceRect);
+                float[] embedding = extractFaceEmbedding(face);
+                float[] dbEmbedding = mainActivity.db.getFaceEmbedding();
+                face.release();
 
-                if (faceRect.x >= 0 && faceRect.y >= 0 && faceRect.x + faceRect.width <= mat.cols() && faceRect.y + faceRect.height <= mat.rows()) {
-                    Mat face = new Mat(mat, faceRect);
-                    float[] embedding = extractFaceEmbedding(face);
-                    float[] dbEmbedding = mainActivity.db.getFaceEmbedding();
-
-                    if (dbEmbedding == null) {
-                        if (!isDialogShown) {
-                            isDialogShown = true;
-                            showFaceDialog("No Saved Face", "No saved face found. Would you like to save this new face?", embedding);
-                        }
-                    } else {
-                        showFaceDialog("Saved Face Found", "Saved face found. Would you like to save this new face?", embedding);
+                if (dbEmbedding == null) {
+                    if (!isDialogShown) {
+                        isDialogShown = true;
+                        showFaceDialog("No Saved Face", "No saved face found. Would you like to save this new face?", embedding);
                     }
-                    face.release();
-                    isFaceProcessed = true;
+                } else {
+                    showFaceDialog("Saved Face Found", "Saved face found. Would you like to save this new face?", embedding);
                 }
+                isFaceProcessed = true;
             }
         }
+
+        if (numFaces > 1 && !isFaceProcessed) {
+            mainActivity.runOnUiThread(() -> Toast.makeText(mainActivity, "Multiple faces detected. Only the first face will be processed.", Toast.LENGTH_SHORT).show());
+        }
+
         MainActivity.processMode = Helper.ProcessMode.FACE_RECOGNITION;
         return null;
     }
+
 
     private void showFaceDialog(String title, String message, float[] embedding) {
         mainActivity.runOnUiThread(() -> new AlertDialog.Builder(mainActivity)

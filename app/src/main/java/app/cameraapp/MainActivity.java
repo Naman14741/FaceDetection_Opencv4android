@@ -79,26 +79,14 @@ public class MainActivity extends AppCompatActivity {
     private Size mInputSize = null;
     private ExecutorService backgroundExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     public final ActivityResultLauncher<String[]> requestPermissionLauncher = registerForActivityResult(
-        new ActivityResultContracts.RequestMultiplePermissions(),
-        result -> {
-            boolean allPermissionsGranted = true;
-            for (Map.Entry<String, Boolean> entry : result.entrySet()) {
-                if (!entry.getValue()) {
-                    allPermissionsGranted = false;
-                    break;
-                }
-            }
-            if (allPermissionsGranted) {
-                startCamera();
-            } else {
-                Toast.makeText(MainActivity.this, "Permissions denied", Toast.LENGTH_SHORT).show();
-            }
-        }
+            new ActivityResultContracts.RequestMultiplePermissions(),
+            this::onActivityResult
     );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        permissions.requestPermissions();
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
@@ -125,7 +113,6 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "Models initialization failed!");
         }
 
-        permissions.requestPermissions();
 
         capture.setOnClickListener(v -> captureImage());
         switchCamera.setOnClickListener(v -> switchCamera());
@@ -241,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startCamera() {
-        //android.util.Size targetResolution = new android.util.Size(4 * previewView.getWidth(), 4 * previewView.getHeight());
+//        android.util.Size targetResolution = new android.util.Size(4 * previewView.getWidth(), 4 * previewView.getHeight());
         ListenableFuture<ProcessCameraProvider> listenableFuture = ProcessCameraProvider.getInstance(this);
 
         listenableFuture.addListener(() -> {
@@ -258,6 +245,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Camera resolution
                 ResolutionSelector resolutionSelector = new ResolutionSelector.Builder()
+//                        .setResolutionStrategy(new ResolutionStrategy(targetResolution, ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
                         .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
                         .build();
 
@@ -452,5 +440,22 @@ public class MainActivity extends AppCompatActivity {
         faces.release();
         overlay.release();
         imageProxy.close();
+    }
+
+    private void onActivityResult(Map<String, Boolean> result) {
+        boolean allPermissionsGranted = true;
+        for (Map.Entry<String, Boolean> entry : result.entrySet()) {
+            if (!entry.getValue()) {
+                allPermissionsGranted = false;
+                break;
+            }
+        }
+
+        if (allPermissionsGranted) {
+            startCamera();
+        } else if (permissions.getDeniedPermissions().length > 0) {
+            Toast.makeText(MainActivity.this, "You should accept all permissions to run this app", Toast.LENGTH_SHORT).show();
+            requestPermissionLauncher.launch(permissions.getDeniedPermissions());
+        }
     }
 }
