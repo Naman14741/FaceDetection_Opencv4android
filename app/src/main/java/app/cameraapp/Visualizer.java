@@ -47,27 +47,30 @@ public class Visualizer {
     }
     public Runnable visualizeFaceAdd(Mat faces, Mat mat) {
         int numFaces = faces.rows();
-        if (numFaces == 0) {
+
+        if(numFaces == 0){
+            mainActivity.runOnUiThread(() -> Toast.makeText(mainActivity, "No faces detected.Please try again.", Toast.LENGTH_SHORT).show());
             MainActivity.processMode = Helper.ProcessMode.FACE_RECOGNITION;
             return null;
         }
 
-        float[] faceData = new float[faces.cols() * faces.channels()];
-        boolean isFaceProcessed = false;
+        if(numFaces > 1){
+            mainActivity.runOnUiThread(() -> Toast.makeText(mainActivity, "Multiple faces detected.Please try again.", Toast.LENGTH_SHORT).show());
+            MainActivity.processMode = Helper.ProcessMode.FACE_DETECTION;
+            return null;
+        }
 
-        for (int i = 0; i < numFaces && !isFaceProcessed; i++) {
-            faces.get(i, 0, faceData);
+        if (numFaces == 1) {
+            float[] faceData = new float[faces.cols() * faces.channels()];
+
+            faces.get(0, 0, faceData);
             Rect faceRect = new Rect(Math.round(faceData[0]), Math.round(faceData[1]),
                     Math.round(faceData[2]), Math.round(faceData[3]));
-
-            Imgproc.rectangle(mat, faceRect.tl(), faceRect.br(), new Scalar(0, 255, 0), 2);
 
             if (faceRect.x >= 0 && faceRect.y >= 0 && faceRect.x + faceRect.width <= mat.cols() && faceRect.y + faceRect.height <= mat.rows()) {
                 Mat face = new Mat(mat, faceRect);
                 float[] embedding = extractFaceEmbedding(face);
                 float[] dbEmbedding = mainActivity.db.getFaceEmbedding();
-                face.release();
-
                 if (dbEmbedding == null) {
                     if (!isDialogShown) {
                         isDialogShown = true;
@@ -76,14 +79,9 @@ public class Visualizer {
                 } else {
                     showFaceDialog("Saved Face Found", "Saved face found. Would you like to save this new face?", embedding);
                 }
-                isFaceProcessed = true;
+                face.release();
             }
         }
-
-        if (numFaces > 1 && !isFaceProcessed) {
-            mainActivity.runOnUiThread(() -> Toast.makeText(mainActivity, "Multiple faces detected. Only the first face will be processed.", Toast.LENGTH_SHORT).show());
-        }
-
         MainActivity.processMode = Helper.ProcessMode.FACE_RECOGNITION;
         return null;
     }
