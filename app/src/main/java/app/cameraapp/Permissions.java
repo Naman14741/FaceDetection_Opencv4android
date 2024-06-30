@@ -9,9 +9,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Permissions {
+    private static final Set<String> REQUIRED_PERMISSIONS = new HashSet<>(List.of());
     private final MainActivity mainActivity;
     public Permissions(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
@@ -60,11 +63,22 @@ public class Permissions {
             }
         }
 
+        REQUIRED_PERMISSIONS.addAll(permissionsToRequest);
+
         if (!permissionsToRequest.isEmpty()) {
             String[] permissionsArray = permissionsToRequest.toArray(new String[0]);
             mainActivity.requestPermissionLauncher.launch(permissionsArray);
         } else {
             mainActivity.startCamera();
         }
+    }
+    public String[] getDeniedPermissions() {
+        List<String> deniedPermissions = new ArrayList<>();
+        for (String permission : REQUIRED_PERMISSIONS) {
+            if (ContextCompat.checkSelfPermission(mainActivity, permission) == PackageManager.PERMISSION_DENIED) {
+                deniedPermissions.add(permission);
+            }
+        }
+        return deniedPermissions.toArray(new String[0]);
     }
 }

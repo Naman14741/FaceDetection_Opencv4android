@@ -45,64 +45,60 @@ public class Visualizer {
     }
     public Runnable visualizeFaceAdd(Mat faces, Mat mat) {
         int numFaces = faces.rows();
-        if (numFaces != 0) {
+
+        if(numFaces == 0){
+            mainActivity.runOnUiThread(() -> Toast.makeText(mainActivity, "No faces detected.Please try again.", Toast.LENGTH_SHORT).show());
+            MainActivity.processMode = Helper.ProcessMode.FACE_RECOGNITION;
+            return null;
+        }
+
+        if(numFaces > 1){
+            mainActivity.runOnUiThread(() -> Toast.makeText(mainActivity, "Multiple faces detected.Please try again.", Toast.LENGTH_SHORT).show());
+            MainActivity.processMode = Helper.ProcessMode.FACE_DETECTION;
+            return null;
+        }
+
+        if (numFaces == 1) {
             float[] faceData = new float[faces.cols() * faces.channels()];
 
-            for (int i = 0; i < numFaces; i++) {
-                faces.get(i, 0, faceData);
-                Rect faceRect = new Rect(Math.round(faceData[0]), Math.round(faceData[1]),
-                        Math.round(faceData[2]), Math.round(faceData[3]));
+            faces.get(0, 0, faceData);
+            Rect faceRect = new Rect(Math.round(faceData[0]), Math.round(faceData[1]),
+                    Math.round(faceData[2]), Math.round(faceData[3]));
 
-                // Check if the face rectangle is within the image boundaries
-                if (faceRect.x >= 0 && faceRect.y >= 0 && faceRect.x + faceRect.width <= mat.cols() && faceRect.y + faceRect.height <= mat.rows()) {
-                    // Extract face embedding
-                    Mat face = new Mat(mat, faceRect);
-                    float[] embedding = extractFaceEmbedding(face);
-                    float[] dbEmbedding = mainActivity.db.getFaceEmbedding();
-
-                    if (dbEmbedding == null) {
-                        if (!isDialogShown) {
-                            isDialogShown = true;
-                            mainActivity.runOnUiThread(() -> {
-                                // Show a dialog asking the user if they want to save the new face
-                                new AlertDialog.Builder(mainActivity)
-                                        .setTitle("No Saved Face")
-                                        .setMessage("No saved face found. Would you like to save this new face?")
-                                        .setPositiveButton("Yes", (dialog, which) -> {
-                                            // Save the face embedding to the database
-                                            mainActivity.db.saveFaceEmbedding(embedding);
-                                            Toast.makeText(mainActivity, "New face saved!", Toast.LENGTH_SHORT).show();
-                                            Log.i(TAG, "Face embedding saved to database");
-                                        })
-                                        .setNegativeButton("No", (dialog, which) -> {})
-                                        .show();
-                            });
-                        }
-                    } else {
-                        mainActivity.runOnUiThread(() -> {
-                            // Show a dialog asking the user if they want to save the new face
-                            new AlertDialog.Builder(mainActivity)
-                                    .setTitle("Saved Face Found")
-                                    .setMessage("Saved face found. Would you like to save this new face")
-                                    .setPositiveButton("Yes", (dialog, which) -> {
-                                        // Save the face embedding to the database
-                                        mainActivity.db.saveFaceEmbedding(embedding);
-                                        Toast.makeText(mainActivity, "New face saved!", Toast.LENGTH_SHORT).show();
-                                        Log.i(TAG, "Face embedding saved to database");
-                                    })
-                                    .setNegativeButton("No", (dialog, which) -> {
-                                        // Do nothing
-                                    })
-                                    .show();
-                        });
+            if (faceRect.x >= 0 && faceRect.y >= 0 && faceRect.x + faceRect.width <= mat.cols() && faceRect.y + faceRect.height <= mat.rows()) {
+                Mat face = new Mat(mat, faceRect);
+                float[] embedding = extractFaceEmbedding(face);
+                float[] dbEmbedding = mainActivity.db.getFaceEmbedding();
+                if (dbEmbedding == null) {
+                    if (!isDialogShown) {
+                        isDialogShown = true;
+                        showFaceDialog("No Saved Face", "No saved face found. Would you like to save this new face?", embedding);
                     }
-                    face.release();
+                } else {
+                    showFaceDialog("Saved Face Found", "Saved face found. Would you like to save this new face?", embedding);
                 }
+                face.release();
             }
         }
         MainActivity.processMode = Helper.ProcessMode.FACE_RECOGNITION;
         return null;
     }
+
+
+    private void showFaceDialog(String title, String message, float[] embedding) {
+        mainActivity.runOnUiThread(() -> new AlertDialog.Builder(mainActivity)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    mainActivity.db.saveFaceEmbedding(embedding);
+                    Toast.makeText(mainActivity, "New face saved!", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "Face embedding saved to database");
+                })
+                .setNegativeButton("No", (dialog, which) -> {
+                })
+                .show());
+    }
+
     private static boolean isDialogShown = false;
     public Runnable visualizeFaceRecognition(Mat overlay, Mat faces, Mat mat) {
         int numFaces = faces.rows();
