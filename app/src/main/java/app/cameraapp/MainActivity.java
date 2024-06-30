@@ -113,7 +113,6 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "Models initialization failed!");
         }
 
-
         capture.setOnClickListener(v -> captureImage());
         switchCamera.setOnClickListener(v -> switchCamera());
         toggleFlash.setOnClickListener(v -> toggleFlash());
@@ -162,13 +161,12 @@ public class MainActivity extends AppCompatActivity {
                     currentRotation = (currentRotation + 180) % 360;
                     rotated = true;
                     Log.i(TAG, "Display rotated by 180 degrees");
-                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Display rotated by 180 degrees", Toast.LENGTH_SHORT).show());
                     if (rotated) {
                         new Handler(Looper.getMainLooper()).postDelayed(() -> {
                             // Rotate the overlay after a delay
                             overlayImageView.setRotation(currentRotation);
                             rotated = false;
-                        }, 3000);
+                        }, 2000);
                     }
                 }
             }
@@ -228,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startCamera() {
-//        android.util.Size targetResolution = new android.util.Size(4 * previewView.getWidth(), 4 * previewView.getHeight());
+        //android.util.Size targetResolution = new android.util.Size(4 * previewView.getWidth(), 4 * previewView.getHeight());
         ListenableFuture<ProcessCameraProvider> listenableFuture = ProcessCameraProvider.getInstance(this);
 
         listenableFuture.addListener(() -> {
@@ -245,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Camera resolution
                 ResolutionSelector resolutionSelector = new ResolutionSelector.Builder()
-//                        .setResolutionStrategy(new ResolutionStrategy(targetResolution, ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
+                        //.setResolutionStrategy(new ResolutionStrategy(targetResolution, ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
                         .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
                         .build();
 
@@ -357,7 +355,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Get image rotation
         int rotationDegrees = image.getImageInfo().getRotationDegrees();
-        // Toast.makeText(this, "Rotation: " + rotationDegrees, Toast.LENGTH_SHORT).show();
         Imgproc.cvtColor(yuvMat, rgbMat, Imgproc.COLOR_YUV2RGB_NV21);
         if (lensFacing == CameraSelector.LENS_FACING_FRONT) {
             switch (rotationDegrees) {
@@ -389,7 +386,6 @@ public class MainActivity extends AppCompatActivity {
                     Core.rotate(rgbMat, rgbMat, Core.ROTATE_90_COUNTERCLOCKWISE);
                     break;
                 default:
-                    // No rotation needed for 0 degrees
                     break;
             }
         }
