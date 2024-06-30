@@ -59,7 +59,7 @@ import app.cameraapp.Helper.ProcessMode;
 public class MainActivity extends AppCompatActivity {
     private DisplayManager displayManager;
     private DisplayManager.DisplayListener displayListener;
-    float currentRotation = 0;
+    public float currentRotation = 0;
     private boolean rotated = false;
     private boolean isCameraStarted = false;
     public static ProcessMode processMode = ProcessMode.FACE_DETECTION;
