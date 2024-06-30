@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
                         .build();
 
                 ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
-                        .setResolutionSelector(resolutionSelector)
+                        //.setResolutionSelector(resolutionSelector)
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
                         .build();
